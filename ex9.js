@@ -1,16 +1,27 @@
 var http = require('http');
 var bl = require('bl');
+var urls = process.argv.slice(2);
+var results = [];
+var count = 0;
 
-for (i = 2; i < process.argv.length; i++) {
-    http.get(process.argv[i], function (res) {
-        //res.setEncoding('utf-8');
-        res.on('error', console.error);
-        res.pipe(bl(function (err, data) {
-            if (err)
+function printContent(){
+    for (i = 0; i < results.length; i++){
+        console.log(results[i]);
+    }
+}
+
+urls.map(function(url, index){
+    http.get(url, function(res){
+        res.pipe(bl(function(err, data){
+            if (err) {
                 return console.error(err);
-            res.on('end', function () {
-                console.log(data.toString());
-            });
+            }
+            results[index] = data.toString();
+            if (++count == urls.length ) {
+                printContent();
+            }
         }));
     });
-}
+});
+
+
