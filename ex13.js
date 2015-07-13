@@ -8,16 +8,32 @@ function createHelpResponse(response){
         '');
 }
 
+function parseTime(time){
+    return JSON.stringify({'hour' : time.getHours(), 'minute' : time.getMinutes(), 'second' : time.getSeconds()});
+}
+
+function unixTime(time){
+    return JSON.stringify({'unixtime':time.getTime()});
+}
+
 var apiResponse = function(req, res){
-    //var pathname = url.parse(req.url);
-    //var query = url.parse(req.url);
-    //res.writeHead(200, {'Content-Type': 'application/json'});
-    //api/parsetime
-    //api/unixtime
+    var parsedUrl = url.parse(req.url, true);
+    var time = new Date(parsedUrl.query['iso']);
+
+    if (parsedUrl.pathname == '/api/parsetime'){
+        res.writeHead(200, {'Content-Type': 'application/json'});
+        return res.end(parseTime(time));
+    }
+
+    if (parsedUrl.pathname == '/api/unixtime'){
+        res.writeHead(200, {'Content-Type': 'application/json'});
+        return res.end(unixTime(time));
+    }
+
     return createHelpResponse(res);
 }
 
 var server = http.createServer(function(req, res){
     return apiResponse(req, res);
 });
-server.listen(4545);
+server.listen(process.argv[2]);
